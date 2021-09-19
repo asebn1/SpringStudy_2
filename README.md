@@ -47,12 +47,10 @@
         - 상품 주문시 배송 정보 입력할 수 있음
 2. 도메인 모델과 테이블 설계
 - 1:N 이면, N쪽에 1의 외래키가 있다
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/1e379440-7f4b-4830-a1f9-0bc9a150cf60/Untitled.png)
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/59d53a6b-a66c-40bc-97ff-8f5e9ee33ddc/Untitled.png)
-
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/2f1f0def-4a5c-448e-b34f-428e16b18b99/Untitled.png)
+- 
+![2](https://user-images.githubusercontent.com/57438644/133923817-6e3f7172-050e-4d71-bf61-e7198e2b2257.png)
+![3](https://user-images.githubusercontent.com/57438644/133923816-e99693c6-8a5a-4b32-b561-17c7cb4de4ee.png)
+![4](https://user-images.githubusercontent.com/57438644/133923814-442fdaae-d796-4a59-9408-e176568cfd1e.png)
 
 ### 엔티티 설계시 주의점
 

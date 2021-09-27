@@ -1,5 +1,5 @@
 # springboot_jpa1
-스프링부트 + JPA 활용
+스프링부트 + JPA 활용한 쇼핑몰사이트 만들어보기
 ![1](https://user-images.githubusercontent.com/57438644/133923641-f68f49ca-7ac2-480e-b27d-f09126bb9fc5.jpg)
 
 
@@ -11,13 +11,6 @@
 - Thymeleaf
 - HIBERNATE
 
-### 목차
-
-1. 프로젝트 생성
-2. 라이브러리 살펴보기
-3. View 환경설정
-4. H2 데이터베이스 설치
-5. JPA와 DB설정, 동작확인
 
 # 1. 프로젝트 환경설정
 

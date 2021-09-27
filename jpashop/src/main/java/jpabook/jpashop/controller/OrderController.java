@@ -5,7 +5,7 @@ import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.service.ItemService;
 import jpabook.jpashop.service.MemberService;
-import jpabook.jpashop.service.OrderSearch;
+import jpabook.jpashop.repository.OrderSearch;
 import jpabook.jpashop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

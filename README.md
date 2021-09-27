@@ -1,5 +1,5 @@
 # springboot_jpa1
-스프링부트 + JPA 활용1
+스프링부트 + JPA 활용
 ![1](https://user-images.githubusercontent.com/57438644/133923641-f68f49ca-7ac2-480e-b27d-f09126bb9fc5.jpg)
 
 
@@ -225,3 +225,110 @@ member1 = em.find(Member.class, id);  // 2. 찾기
 - **변수 추출 : Ctrl + alt + V**
 - 파라미터 추출 : Ctrl + alt + P
 - 코드 생성자 : alt + Insert   → Getter, Setter, RequiredArgsConstuctor
+# API 개발과 성능 최적화
+
+### api 패키지
+
+- 엔티티X
+- DTO로 받기 → @RequestBody @Valid + 새로 등록한 함수
+- 어노테이션
+    - RestController : @Controller + @ResponseBody
+    - RequiredArgsConstructor
+
+### API 개발고급
+
+- 조회용 샘플 데이터 입력
+- 지연로딩과 조회 성능 최적화
+- 컬렉션 조회 최적화
+- 페이징과 한계 돌파
+- OSIV와 성능 최적화
+
+### 지연로딩과 조회성능최적화 (XToOne)
+
+1. 연관관계 (xToOne)인 경우
+    - 한쪽에 @JsonIgnore 추가
+    - 조회시 Lazy 강제 초기화
+
+    ```java
+    public List<Order> ordersV1(){
+            List<Order> all = orderRepository.findAllByCriteria(new OrderSearch());
+            for (Order order : all){
+                order.getMember().getName();  // Lazy 강제 초기화
+                order.getDelivery().getAddress(); // Lazy 강제 초기화
+            }
+            return all;
+        }
+    ```
+
+2. DTO로 조회하는 경우 → 조회는 DTO로 조회X
+    - N+1문제 발생 (쿼리가 최악의 경우 2N(배송 → 주문자, 주문상품)+1)
+3. fetch join
+    - 쿼리가 1번 나옴
+4. DTO로 직접 조회
+- 쿼리 방식 선택 권장 순서
+    1. 우선 엔티티를 DTO로 변환하는 방법을 선택
+    2. 필요하면 fetch join으로 성능 최적화 → 대부분 해결
+    3. 그래도 안되면 DTO로 직접 조회하는 방법 선택
+    4. 최후는 JPA가 제공하는 네이티브 SQL이나 스프링 JDBC Template을 사용해서 SQL을 직접 사용
+
+    ### 컬렉션 조회 최적화 (OneToMany)
+
+    1. 엔티티 직접노출 - v1
+        - 함수호출 → Lazy 강제초기화
+        - 사용X
+    2. DTO 사용  - v2
+        - List → DTO
+        - orderItems.stream().forEach(o -> o.getItem().getName());
+    3. fetch join 쿼리 + DTO 사용 → v3
+        - 쿼리 1번 사용
+        - 페이징 불가 : 일대다 → 데이터가 예측할 수 없이 증가
+            - setFirstResult(1)
+            - setMaxResults(100)
+
+        **→ 해결법 ( 컬렉션 + 페이징 문제 )**
+
+        1. ToOne(ManyToOne, OneToOne) 먼저 join fetch   → row수에 영향X
+        2. **컬렉션은 지연로딩(LAZY)**으로 조회
+        3. 지연로딩 성능최적화
+            - hibernate.default_batch_fetch_size : 글로벌설정
+            - @BatchSize : 개별최적화
+
+    ### 권장순서
+
+    1. 엔티티 조회 방식으로 우선접근
+        - join fetch로 쿼리 수 최소화
+        - 컬렉션 최적화
+            - 페이징 필요 : hibernate.default_batch_fetch_size, @BatchSize
+            - 페이징 필요X → join fetch 사용
+    2. 엔티티 조회 방식으로 해결안되면 DTO 조회방식 사용
+    3. DTO 조회 방식으로 해결안되면, NativeSQL, 스프링 JdbcTemplate
+
+### OSIV ON
+
+: Open EntityManger in View : JPA
+
+- spring.jpa.open-in-view: **true 기본값**
+- 트랜잭션처럼, 최초 DB 커넥션 시작시점부터 API응답이 끝날 때 까지 **영속성 컨텍스트와 DB커넥션을 유지**. → 지연로딩 가능
+- 지연로딩 조건
+    - 영속성 컨텍스트
+    - DB 커넥션 유지
+- 치명적인 단점
+    - 너무 오랜시간 DB커넥션 리소스를 사용 → Application에서 커넥션이 모자랄 수 있다(장애로 이어짐)
+
+### OSIV OFF
+
+- 트랜잭션을 종료할 때 영속성 컨텍스트를 닫고, DB 커넥션도 반환 → 커넥션 리소스 낭비하징낳음
+- 지연로딩
+    - 트랜잭션 안에서 처리해야 함 → 강제 호출
+    - view template에서 지연로딩이 동작하지 않음
+- 복잡성 관리법
+    - Command와 Query를 분리
+    - 비즈니스 로직 < 쿼리(최적화 중요)
+    - EX) OrderService
+        - OrderService : 핵심 비즈니스 로직
+        - OrderQueryService : 화면이나 API에 맞춘 서비스 (읽기전용 트랜잭션)
+
+### OSIV 결론
+
+- 고객 서비스 실시간 API : OSIV OFF
+- ADMIN처럼 많이 사용하지 않는 곳 : OSIV ON

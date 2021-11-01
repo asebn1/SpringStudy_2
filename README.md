@@ -1,5 +1,5 @@
 # springboot_jpa
-스프링부트 + JPA 활용한 쇼핑몰사이트 만들어보기
+스프링부트 + JPA 
 ![image](https://user-images.githubusercontent.com/57438644/134947319-75bf5fe1-4f54-45de-8a62-b2b30c52f4c4.png)
 
 ### 프로젝트 환경설정
